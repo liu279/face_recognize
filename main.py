@@ -220,38 +220,38 @@ def line4():
         workout_t = request.values.get('workout_t')
         avatar = image_list[0]
 
-        f = open('/Users/cityfruit-lf/Desktop/face_recognition-master2/api',encoding='UTF-8')
-        user_info = json.loads(f.read())
-        # f.close()
-
-        ii=[]
-        for i in range(len(user_info['result'])):
-            ii.append(user_info['result'][i]['id'])
-        id = max(ii)
-
-        data = {
-            'id': id+1,
-            'uid': '',
-            'avatar': '/Users/cityfruit-lf/Desktop/flask/static/data_faces_from_camera/other/'+avatar,
-            'name': name,
-            'sex': sex,
-            'age': age,
-            'rank': rank,
-            'department': department,
-            'workon_t': workon_t,
-            'workout_t': workout_t,
-            "work_night": "白班",
-            "slogan": slogan,
-            "add_time": 1531468860,
-            "update_time": 1534215330,
-            "coid": 0,
-            "avatar_name": '/Users/cityfruit-lf/Desktop/flask/static/data_faces_from_camera/other/'+avatar
-        }
-        user_info['result'].append(data)
-        print(user_info)
-        with open('/Users/cityfruit-lf/Desktop/face_recognition-master2/api', 'w') as f:
-            json.dump(user_info, f)
-        # f.write(user_info)
+        # f = open('/Users/cityfruit-lf/Desktop/face_recognition-master2/api',encoding='UTF-8')
+        # user_info = json.loads(f.read())
+        # # f.close()
+        #
+        # ii=[]
+        # for i in range(len(user_info['result'])):
+        #     ii.append(user_info['result'][i]['id'])
+        # id = max(ii)
+        #
+        # data = {
+        #     'id': id+1,
+        #     'uid': '',
+        #     'avatar': '/Users/cityfruit-lf/Desktop/flask/static/data_faces_from_camera/other/'+avatar,
+        #     'name': name,
+        #     'sex': sex,
+        #     'age': age,
+        #     'rank': rank,
+        #     'department': department,
+        #     'workon_t': workon_t,
+        #     'workout_t': workout_t,
+        #     "work_night": "白班",
+        #     "slogan": slogan,
+        #     "add_time": 1531468860,
+        #     "update_time": 1534215330,
+        #     "coid": 0,
+        #     "avatar_name": '/Users/cityfruit-lf/Desktop/flask/static/data_faces_from_camera/other/'+avatar
+        # }
+        # user_info['result'].append(data)
+        # print(user_info)
+        # with open('/Users/cityfruit-lf/Desktop/face_recognition-master2/api', 'w') as f:
+        #     json.dump(user_info, f)
+        # # f.write(user_info)
 
         # 写入单人的csv
         with open(path_csv + image_id + ".csv", "w", newline="") as csvfile:
@@ -280,13 +280,13 @@ def line4():
             print("##### 得到的特征均值 / The generated average values of features stored in: #####")
 
             for i in range(len(csv_rd)):
-                feature_mean = compute_the_mean(path_csv_rd + csv_rd[i])
-
-                feature_mean.append(csv_rd[i][:-4])
-                # print(csv_rd[i][:-4])
-                print(feature_mean)
-                print(path_csv_rd + csv_rd[i])
-                writer.writerow(feature_mean)
+                if (csv_rd[i] != '.DS_Store'):
+                    feature_mean = compute_the_mean(path_csv_rd + csv_rd[i])
+                    feature_mean.append(csv_rd[i][:-4])
+                    # print(csv_rd[i][:-4])
+                    print(feature_mean)
+                    print(path_csv_rd + csv_rd[i])
+                    writer.writerow(feature_mean)
 
         Todo = leancloud.Object.extend('Test')
         todo = Todo()
