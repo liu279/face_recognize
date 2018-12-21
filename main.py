@@ -6,7 +6,6 @@ import os           # 读写文件
 import shutil       # 读写文件
 import sys
 import json
-# app = Flask(__name__)
 import redis
 import pickle
 import leancloud
@@ -16,8 +15,6 @@ import csv
 import pandas as pd
 import base64
 import time
-# from numba import jit
-# from mpi4py import MPI
 
 
 leancloud.init("rMFNrioxVUtWdFdcVSlPSX6T-gzGzoHsz", "0fbQtBDhRgptE0DLhpLruQyr")
@@ -377,7 +374,6 @@ def return_euclidean_distance(feature_1, feature_2):
 
 
 
-# @jit
 @app.route('/line6', methods=['post'])  # 这个地址返回识别到的
 def line6():
     # return json.dumps({'code': 200, 'msg': 'ss'}, cls=MyEncoder)
