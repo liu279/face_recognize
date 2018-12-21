@@ -87,12 +87,12 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('static/data_dlib/shape_predictor_68_face_landmarks.dat')
 
 # 创建 cv2 摄像头对象
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 # cap.open("rtsp://admin:Aa123456@192.180.0.180/Streaming/Channels/103")
 
 # cap.set(propId, value)
 # 设置视频参数，propId 设置的视频参数，value 设置的参数值
-cap.set(4, 100)
+cap.set(3, 100)
 
 # 返回一张图像多张人脸的 128D 特征
 def get_128d_features(img_gray):
@@ -241,14 +241,14 @@ while cap.isOpened():
                 cv2.putText(img_rd, name_namelist[i], pos_namelist[i], font, 0.8, (0, 255, 255), 1, cv2.LINE_AA)
 
         # 將識別出的人臉存入Redis
-        r = Redis.connect()
-        if(len(name_namelist)>0):
-            Redis.set_data(r, 'name', name_namelist)
+        # r = Redis.connect()
+        # if(len(name_namelist)>0):
+        #     Redis.set_data(r, 'name', name_namelist)
         print("Name list now:", name_namelist, "\n")
 
     cv2.putText(img_rd, "Face Recognition", (20, 40), font, 1, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.putText(img_rd, "Faces: " + str(len(faces)), (20, 100), font, 1, (0, 0, 255), 1, cv2.LINE_AA)
-    # cv2.imshow("camera", img_rd)
+    cv2.imshow("camera", img_rd)
 # 释放摄像头
 cap.release()
 

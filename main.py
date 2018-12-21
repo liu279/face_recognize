@@ -16,12 +16,13 @@ import csv
 import pandas as pd
 import base64
 import time
-from numba import jit
+# from numba import jit
 # from mpi4py import MPI
 
 
 leancloud.init("rMFNrioxVUtWdFdcVSlPSX6T-gzGzoHsz", "0fbQtBDhRgptE0DLhpLruQyr")
-app = Flask(__name__, static_folder='static/data_faces_from_camera/other')
+app = Flask(__name__, static_folder='static')
+# app = Flask(__name__, static_folder='static/data_faces_from_camera/other')
 
 
 class Redis:
@@ -49,69 +50,38 @@ class VideoCamera(object):
 
     def __init__(self):
         # 通过opencv获取实时视频流
-        self.video = cv2.VideoCapture(0)
+        self.video = cv2.VideoCapture(1)
 
     def __del__(self):
         self.video.release()
 
     def get_frame(self):
-        success, image = self.video.read()
+        try:
+            success, image = self.video.read()
+            ret, jpeg = cv2.imencode('.jpg', image)
+            # imD = base64.b64encode(jpeg)
+            # print(imD)
 
-        # Dlib 正向人脸检测器
-        detector = dlib.get_frontal_face_detector()
-        # Dlib 68 点特征预测器
-        predictor = dlib.shape_predictor('static/data_dlib/shape_predictor_68_face_landmarks.dat')
-
-        # 设置视频参数
-        self.video.set(3, 480)
-
-        # while self.video.isOpened():
-        # 480 height * 640 width
-        flag, img_rd = self.video.read()
-
-        img_gray = cv2.cvtColor(img_rd, cv2.COLOR_RGB2GRAY)
-        # 人脸数 faces
-        faces = detector(img_gray, 0)
-        # print(faces)
-        # 矩形框
-        # for k, d in enumerate(faces):
-            # print(d)
-            # print(d.left())
-            # print(d.top())
-            # print(d.right())
-            # print(d.bottom())
-        #     # 计算矩形大小
-        #     # (x,y), (宽度width, 高度height)
-        #     pos_start = tuple([d.left(), d.top()])
-        #     pos_end = tuple([d.right(), d.bottom()])
-        #
-        #     # 计算矩形框大小
-        #     height = (d.bottom() - d.top())
-        #     width = (d.right() - d.left())
-        #
-        #     hh = int(height / 2)
-        #     ww = int(width / 2)
-        #
-        #     # 设置颜色 / The color of rectangle of faces detected
-        #     color_rectangle = (255, 255, 255)
-        #     # if (d.right() + ww) > 640 or (d.bottom() + hh > 480) or (d.left() - ww < 0) or (d.top() - hh < 0):
-        #     #     cv2.putText(img_rd, "OUT OF RANGE", (20, 300), font, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
-        #     #     color_rectangle = (0, 0, 255)
-        #     # else:
-        #     #     color_rectangle = (255, 255, 255)
-        #
-        #     cv2.rectangle(img_rd,
-        #                   tuple([d.left() - ww, d.top() - hh]),
-        #                   tuple([d.right() + ww, d.bottom() + hh]),
-        #                   color_rectangle, 2)
-        #     # print(cv2)
-
-
-        # 因为opencv读取的图片并非jpeg格式，因此要用motion JPEG模式需要先将图片转码成jpg格式图片
-        ret, jpeg = cv2.imencode('.jpg', image)
-        # return jpeg.tobytes()
-        return {'img': jpeg.tobytes(), 'faces': faces, }
+            return jpeg.tobytes()
+        except:
+            return ''
+        # return {'img': jpeg.tobytes(), 'faces': faces, }
         # return {'img':jpeg.tobytes(),'left':d.left() - ww, 'top':d.top() - hh,'right':d.right() + ww, 'bottom':d.bottom() + hh }
+
+
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        # print(frame['faces'][0].top())
+        # 使用generator函数输出视频流， 每次请求输出的content类型是image/jpeg['img']
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+@app.route('/video_feed')  # 这个地址返回视频流响应
+def video_feed():
+    return Response(gen(VideoCamera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/')  # 主页
@@ -403,9 +373,10 @@ def return_euclidean_distance(feature_1, feature_2):
 
 
 
-@jit
+# @jit
 @app.route('/line6', methods=['post'])  # 这个地址返回识别到的
 def line6():
+    # return json.dumps({'code': 200, 'msg': 'ss'}, cls=MyEncoder)
     start = time.time()
     # 人脸识别模型，提取 128D 的特征矢量
     # face recognition model, the object maps human faces into 128D vectors
@@ -445,7 +416,7 @@ def line6():
             # print(faces)
             # 存储所有人脸的名字
             name_namelist = []
-            # return json.dumps({'code': 200, 'msg': 'ss'}, cls=MyEncoder)
+
             other = os.listdir('static/data_faces_from_camera/other')
             others = []
             for i in range(len(other)):
@@ -504,16 +475,16 @@ def line6():
                         # da={}
                         # 将某张人脸与存储的所有人脸数据进行比对
                         compare = return_euclidean_distance(features_cap_arr[k], features_known_arr[i])
-                        print(compare)
+                        # print(compare)
                         if compare == "same":  # 找到了相似脸
                             name_namelist[k] = features_known_name[i]
-                            print(111)
+                            # print(111)
                             # print(faces[k])
                             da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':1}
                             data.append(da)
                         # else 不相似的脸 截图保存 等待后续操作
                         else:
-                            print(222)
+                            # print(222)
                             da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':0}
                             data.append(da)
                             path_make_dir = "static/data_faces_from_camera/"
@@ -631,19 +602,6 @@ def compute_the_mean(path_csv_rd):
 
 
 
-def gen(camera):
-    while True:
-        frame = camera.get_frame()
-        # print(frame['faces'][0].top())
-        # 使用generator函数输出视频流， 每次请求输出的content类型是image/jpeg
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame['img'] + b'\r\n\r\n')
-
-
-@app.route('/video_feed')  # 这个地址返回视频流响应
-def video_feed():
-    return Response(gen(VideoCamera()),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':

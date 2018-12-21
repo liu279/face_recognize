@@ -40,7 +40,11 @@ var Canvas2Image = function () {
 
 	function getDataURL (canvas, type, width, height) {
 		canvas = scaleCanvas(canvas, width, height);
-		return canvas.toDataURL(type);
+		if(type == 'png'){
+           return canvas.toDataURL(type,0.5);
+        }else{
+           return canvas.toDataURL(type,60);
+        }
 	}
 
 	function saveFile (strData,filename) {
