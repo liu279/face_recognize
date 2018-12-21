@@ -4,4 +4,5 @@ venv
 test.py
 test2.py
 __pycache__
-static/data_faces_from_camera/other
+static/data_faces_from_camera/other/
+static/data_csvs_from_camera/
