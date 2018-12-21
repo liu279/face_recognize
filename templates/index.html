@@ -7,8 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
-    <!--<script src="http://afr.cityfruit.io/laydate/laydate.js"></script> &lt;!&ndash; 改成你的路径 &ndash;&gt;-->
-    <!--<script src="https://ai.haokgy.cn/script/canvas2image.js"></script> &lt;!&ndash; 改成你的路径 &ndash;&gt;-->
     <script src="static/laydate/laydate.js"></script>
     <script src="static/laydate/canvas2image.js"></script>
     <style>
@@ -20,9 +18,6 @@
         .box {
             overflow: hidden;
             margin-bottom: 10px;
-            /*width: 100%;*/
-            /*height: 300px;*/
-            /*position: relative;*/
         }
         .drama-title {
             position: relative;
@@ -142,7 +137,7 @@
             overflow: auto;
         }
     </style>
-     <script type="text/javascript">
+    <script type="text/javascript">
         //弹出隐藏层
         function ShowDiv(show_div,bg_div){
             document.getElementById(show_div).style.display='block';
@@ -184,17 +179,14 @@
      </script>
   </head>
   <body style="background-color: black">
-    <!--<video src="{{ url_for('video_feed') }}" id="img" style="z-index: 1;position: absolute;"></video>-->
     <div class="container">
         <h1 style="color: #dadadf;">員工信息錄入後台系統--Demo版</h1>
         <div class="box flex">
-            <!--<video id="video" width="400" height="300" autoplay></video>src="{{ url_for('video_feed') }}"-->
             <canvas id="canvas"></canvas>
             <img  width="400" height="300" id="iimg">
         </div>
         <div class="flex-column-start">
             <h4 class="drama-title">未識別出的面部</h4>
-            <!--<div class="up flex-start"> method="post" enctype="multipart/form-data"-->
             <form method="post" class="up flex-start" id="form">
                 <div id="div" class="flex-wrap"></div>
                 <div id="div2" class="flex-column-start">
@@ -265,13 +257,10 @@
                     <div><button id="save" type="submit" class="btn btn-default">提交</button></div>
                 </div>
             </form>
-            <!--</div>-->
             <h4 class="drama-title">識別出的面部</h4>
             <div class="down flex-start" >
-                <div class="flex-start" id="info">
-                    <!--<canvas id="canvass0" width="100%" height="100%"></canvas>-->
-                </div>
-                <!--<div class="flex-start" id="info2"></div>-->
+                <div class="flex-start" id="info"></div>
+                <div class="flex-start" id="info2"></div>
             </div>
          </div>
     </div>
@@ -290,63 +279,6 @@
     });
   </script>
 <script>
-//     let datas = eval('{{data|safe }}')
-  // 獲取未識別的人臉
-  function getData(){
-        $.ajax({
-            url: "/line",
-            type: "get",
-            dataType: "json",
-            data:'',
-            cache: "false",
-            success: function (data) {
-                // console.log(data);
-                var len = document.getElementById("div").getElementsByTagName("img").length
-                if(data.length >len){
-                    document.getElementById("div").innerHTML = '';
-                    for (var j=0;j<data.length;j++){
-                        var html = document.getElementById("div").innerHTML;
-                            //再跟你想追加的代码加到一起插入div中
-                        document.getElementById('div').innerHTML = html + '<div style="display: inline-block"><input type="checkbox" name="imgs" value="'+data[j]+'"><img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="./static/data_faces_from_camera/other/'+data[j]+'"></div>';
-                        // document.getElementById('div').innerHTML = html + '<img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="http://127.0.0.1:5000/other/'+data[j]+'">';
-                   }
-                }
-            },
-            error : function(e) {
-                console.log(e);
-            }
-        });
-    }
-  // // 獲取識別出的人臉
-  function getData2(){
-       $.ajax({
-           url: "/line2",
-           type: "get",
-           dataType: "json",
-           data:'',
-           cache: "false",
-           success: function (data) {
-               // console.log(data.length);
-               var len = document.getElementById("info").getElementsByClassName("flex").length;
-               // console.log(len)
-               if(data.length>len){
-                   document.getElementById("info").innerHTML = '';
-                   document.getElementById("info2").innerHTML = '';
-                   for (var j=0;j<data.length;j++){
-                       var html = document.getElementById("info").innerHTML;
-                       var html2 = document.getElementById("info2").innerHTML;
-                       // console.log(html)
-                       //再跟你想追加的代码加到一起插入div中
-                       document.getElementById('info').innerHTML = html + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" onclick="return clicks('+j+')" src="http://127.0.0.1:5000/other/'+data[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
-                       document.getElementById('info2').innerHTML = html2 + '<div id="detail'+j+'" class="flex" style="margin-bottom:10px;color:black;display: none"><div style="padding-left: 10px;"><h5>'+data[j]['name'] +'</h5><div style="font-size: 10px;">'+ data[j]['info']+'</div></div><img src="http://127.0.0.1:5000/other/'+data[j]['img']+'" style="width: 120px;height: 120px;"></div>';
-                   }
-               }
-           },
-           error : function(e) {
-               console.log(e);
-           }
-       });
-   }
   // // 點擊查看個人資料
   function clicks(e) {
        var headimg=document.getElementsByClassName("imgs");
@@ -356,9 +288,7 @@
        }
        document.getElementById("detail"+e).style.display = 'block';
   }
-  // 定時刷新獲取人臉
-  // window.setInterval(getData,2000);
-
+  //提交数据
   $(function () {
     $('#save').on("click",function(){
         //获取全选之外的checkbox
@@ -411,76 +341,14 @@
         return false;
     });
 });
-
-  function getData3(){
-      var img = document.getElementById('img');
-      console.log(img)
-      console.log(img.width)
-
-      console.log(img.height)
-        $.ajax({
-            url: "/line5",
-            type: "get",
-            dataType: "json",
-            data:'',
-            cache: "false",
-            success: function (data) {
-                console.log(data)
-                // var len = document.getElementById("info").getElementsByClassName("flex").length;
-               // console.log(len)
-               // if(data.length>len){
-               //     document.getElementById("info").innerHTML = '';
-                   for (var j=0;j<data.length;j++){
-                        var canvass =  document.getElementById("canvass"+j);
-                        if(!canvass){
-                            var canvass =  document.createElement("canvass");
-                        }
-                        var ctx2=canvass.getContext('2d');//类型是2d
-                        canvass.width=100;//画布的宽度等于视频屏幕的宽度
-                        canvass.height=100;
-                        ctx2.drawImage(img,data[j].yy,data[j].xx,data[j].yw,data[j].xh,0,0,100,100);
-
-                        var html3 = document.getElementById("info").innerHTML;
-                        //再跟你想追加的代码加到一起插入div中
-                        var c = document.getElementById("canvass"+j);
-                        if(!c){
-                            document.getElementById('info').innerHTML = html3 + '<canvas id="canvass'+j+'" width="100%" height="100%"></canvas>';
-                        }
-
-
-                       // var html = document.getElementById("info").innerHTML;
-                       // // console.log(html)
-                       // //再跟你想追加的代码加到一起插入div中
-                       // document.getElementById('info').innerHTML = html + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" onclick="return clicks('+j+')" src="http://127.0.0.1:5000/other/'+data[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
-                   }
-               // }
-
-            },
-            error : function(e) {
-                console.log(e);
-            }
-        });
-    }
-      // window.setInterval(getData3,2000);
-
 </script>
 
 <script>
-    // var video = document.getElementById('video');
     var iimg = document.getElementById('iimg');
     var canvas = document.getElementById('canvas');
-    // var ctx = canvas.getContext('2d');
-    // var width = video.width;
-    // var height = video.height;
-
-    // canvas.width = width;
-    // canvas.height = height;
     iimg.src="{{ url_for('video_feed') }}";
 
     window.setInterval(function () {
-
-        // console.log(iimg)
-        // var canvas2 = document.createElement("canvas");
         var ctx2 = canvas.getContext('2d');
         canvas.width = 400;
         canvas.height = 300;
@@ -491,7 +359,6 @@
         var mytime=myDate.toLocaleTimeString();
         console.log('1：'+mytime)
         $.ajax({
-            // url: "{{ url_for('line6') }}",
             url: "/line6",
             type: "post",
             dataType: "json",
@@ -501,25 +368,22 @@
                 console.log(data)
                 var mytime3=myDate.toLocaleTimeString();
                 console.log('3：'+mytime3)
-                // console.log('data:'+data)
                 if(data){
                     for (var j=0;j<data.length;j++){
                         if(data[j].is_known == 1){
-                            var canvass =  document.getElementById("canvass"+j);
-                            if(!canvass){
-                                var canvass =  document.createElement("canvas");
-                            }
-                            var ctx2=canvass.getContext('2d');//类型是2d
-                            canvass.width=200;//画布的宽度等于视频屏幕的宽度
-                            canvass.height=200;
-                            // left top width height
-                            ctx2.drawImage(imga,data[j].left-20,data[j].top-20,data[j].right - data[j].left+40,data[j].bottom - data[j].top+40,0,0,200,200);
-                            var html3 = document.getElementById("info").innerHTML;
-                            //再跟你想追加的代码加到一起插入div中
-                            var c = document.getElementById("canvass"+j);
-                            if(!c){
-                                document.getElementById('info').innerHTML = html3 + '<div class="flex-column-start"><canvas id="canvass'+j+'" width="100%" height="100%"></canvas><div>'+data[j].name+'</div></div>';
-                            }
+                           var len = document.getElementById("info").getElementsByClassName("flex").length;
+                           if(data.length>len){
+                               document.getElementById("info").innerHTML = '';
+                               document.getElementById("info2").innerHTML = '';
+                               for (var j=0;j<data.length;j++){
+                                   var html = document.getElementById("info").innerHTML;
+                                   var html2 = document.getElementById("info2").innerHTML;
+                                   // console.log(html)
+                                   //再跟你想追加的代码加到一起插入div中
+                                   document.getElementById('info').innerHTML = html + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" onclick="return clicks('+j+')" src="./static/data_faces_from_camera/other/'+data[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
+                                   document.getElementById('info2').innerHTML = html2 + '<div id="detail'+j+'" class="flex" style="margin-bottom:10px;color:black;display: none"><div style="padding-left: 10px;"><h5>'+data[j]['name'] +'</h5><div style="font-size: 10px;">'+ data[j]['info']+'</div></div><img src="./static/data_faces_from_camera/other/'+data[j]['img']+'" style="width: 120px;height: 120px;"></div>';
+                               }
+                           }
                         }else{
                             var canvass2 =  document.getElementById("canvass2"+j);
                             if(!canvass2){
@@ -547,117 +411,5 @@
         var mytime2=myDate.toLocaleTimeString();
         console.log('2：'+mytime2)
     },1500);
-
-
-    // function liveVideo(){
-    //     var URL = window.URL || window.webkitURL;   // 获取到window.URL对象
-    //     navigator.getUserMedia({
-    //         video: true
-    //     }, function(stream) {
-    //         video.src = URL.createObjectURL(stream);   // 将获取到的视频流对象转换为地址
-    //         // video.src = HTMLMediaElement.srcObject(stream);   // 将获取到的视频流对象转换为地址
-    //         video.play();   // 播放
-    //         //点击截图
-    //         // window.setInterval(function () {
-    //         //     ctx.drawImage(video, 0, 0, width, height);
-    //         // },20);
-    //         // draw(ctx,video,width,height);
-    //         window.setInterval(function () {
-    //             ctx.drawImage(video, 0, 0, width, height);
-    //             var imga = Canvas2Image.convertToJPEG(canvas, width, height);
-    //             // console.log(imga)
-    //             var myDate = new Date();
-    //             var mytime=myDate.toLocaleTimeString();
-    //             console.log('1：'+mytime)
-    //              $.ajax({
-    //                 url: "/line6",
-    //                 type: "post",
-    //                 dataType: "json",
-    //                 data:{'url':imga.src},
-    //                 cache: "false",
-    //                 success: function (data) {
-    //                     var mytime3=myDate.toLocaleTimeString();
-    //                     console.log('3：'+mytime3)
-    //                     console.log('data:'+data)
-    //                     if(data){
-    //                         for (var j=0;j<data.length;j++){
-    //                             if(data[j].is_known == 1){
-    //                                 var canvass =  document.getElementById("canvass"+j);
-    //                                 if(!canvass){
-    //                                     var canvass =  document.createElement("canvas");
-    //                                 }
-    //                                 var ctx2=canvass.getContext('2d');//类型是2d
-    //                                 canvass.width=200;//画布的宽度等于视频屏幕的宽度
-    //                                 canvass.height=200;
-    //                                 // left top width height
-    //                                 ctx2.drawImage(imga,data[j].left-20,data[j].top-20,data[j].right - data[j].left+40,data[j].bottom - data[j].top+40,0,0,200,200);
-    //                                 var html3 = document.getElementById("info").innerHTML;
-    //                                 //再跟你想追加的代码加到一起插入div中
-    //                                 var c = document.getElementById("canvass"+j);
-    //                                 if(!c){
-    //                                     document.getElementById('info').innerHTML = html3 + '<div class="flex-column-start"><canvas id="canvass'+j+'" width="100%" height="100%"></canvas><div>'+data[j].name+'</div></div>';
-    //                                 }
-    //                             }else{
-    //                                 // var len = document.getElementById("div").getElementsByTagName("img").length
-    //                                 // if(data.length >len){
-    //                                 //     document.getElementById("div").innerHTML = '';
-    //                                 //     for (var j=0;j<data.length;j++){
-    //                                 //         var html = document.getElementById("div").innerHTML;
-    //                                 //             //再跟你想追加的代码加到一起插入div中
-    //                                 //         document.getElementById('div').innerHTML = html + '<div style="display: inline-block"><input type="checkbox" name="imgs" value="'+data[j]+'"><img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="http://127.0.0.1:5000/other/'+data[j]+'"></div>';
-    //                                 //         // document.getElementById('div').innerHTML = html + '<img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="http://127.0.0.1:5000/other/'+data[j]+'">';
-    //                                 //    }
-    //                                 // }
-    //                                 var canvass2 =  document.getElementById("canvass2"+j);
-    //                                 if(!canvass2){
-    //                                     var canvass2 =  document.createElement("canvas");
-    //                                 }
-    //                                 var ctx2=canvass2.getContext('2d');//类型是2d
-    //                                 canvass2.width=200;//画布的宽度等于视频屏幕的宽度
-    //                                 canvass2.height=200;
-    //                                 // left top width height
-    //                                 ctx2.drawImage(imga,data[j].left-20,data[j].top-20,data[j].right - data[j].left+40,data[j].bottom - data[j].top+40,0,0,200,200);
-    //                                 var html3 = document.getElementById("div").innerHTML;
-    //                                 //再跟你想追加的代码加到一起插入div中
-    //                                 var c = document.getElementById("canvass2"+j);
-    //                                 if(!c){
-    //                                     document.getElementById('div').innerHTML = html3 + '<div class="flex-column-start"><canvas id="canvass2'+j+'" width="100%" height="100%"></canvas><div>'+data[j].name+'</div></div>';
-    //                                 }
-    //                             }
-    //
-    //
-    //                                // console.log(html)
-    //                                //再跟你想追加的代码加到一起插入div中
-    //                                // document.getElementById('info').innerHTML = html3 + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" src="http://127.0.0.1:5000/other/'+data[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
-    //                                // document.getElementById('info2').innerHTML = html2 + '<div id="detail'+j+'" class="flex" style="margin-bottom:10px;color:black;display: none"><div style="padding-left: 10px;"><h5>'+data[j]['name'] +'</h5><div style="font-size: 10px;">'+ data[j]['info']+'</div></div><img src="http://127.0.0.1:5000/other/'+data[j]['img']+'" style="width: 120px;height: 120px;"></div>';
-    //
-    //                         }
-    //                     }
-    //                 },
-    //                 error : function(e) {
-    //                     console.log(e);
-    //                 }
-    //             });
-    //             var mytime2=myDate.toLocaleTimeString();
-    //             console.log('2：'+mytime2)
-    //             // document.getElementById("snap").addEventListener('click', function() {
-    //             // ctx.drawImage(video, 0, 0, width, height);
-    //             // var url = canvas.toDataURL('image/png');
-    //             // document.getElementById('download').href = url;
-    //             // });
-    //         },1500);
-    //     }, function (error) {
-    //             console.log(error.name || error);
-    //     });
-    // }
-    // function draw(ctx, video, width, height){
-    //     ctx.drawImage(video, 0, 0, width, height);
-    // }
-    // window.setInterval(function () {
-    //             context.drawImage(video, 0, 0,200,120);
-    //         }, 60);
-    // document.getElementById("live").addEventListener('',function(){
-    //     liveVideo()
-    // });
 </script>
 </html>

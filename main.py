@@ -74,8 +74,12 @@ def gen(camera):
         frame = camera.get_frame()
         # print(frame['faces'][0].top())
         # 使用generator函数输出视频流， 每次请求输出的content类型是image/jpeg['img']
-        yield (b'--frame\r\n'
+
+        if frame:
+            yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            yield ('')
 
 
 @app.route('/video_feed')  # 这个地址返回视频流响应
@@ -480,8 +484,8 @@ def line6():
                             name_namelist[k] = features_known_name[i]
                             # print(111)
                             # print(faces[k])
-                            da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':1}
-                            data.append(da)
+                            # da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':1}
+                            # data.append(da)
                         # else 不相似的脸 截图保存 等待后续操作
                         else:
                             # print(222)
@@ -522,6 +526,37 @@ def line6():
             end = time.time()
             tt = end - start
             print('mm:',tt)
+
+            # 將識別出的人臉存入Redis
+            r = Redis.connect()
+
+            goods = Redis.get_data(r, 'name')
+
+            if goods:
+                goods=goods
+            else:
+                goods = name_namelist
+
+            print(goods)
+            Todo = leancloud.Object.extend('Test')
+            query = Todo.query
+            for i in goods:
+                print(i)
+                query.equal_to('image_id', i)
+                query_list = query.find()
+                for ii in query_list:
+                    # print(ii.get('image_id'))
+                    das = {
+                        'image_id': ii.get('image_id'),
+                        'name': ii.get('name'),
+                        'info': ii.get('info'),
+                        'img': ii.get('img'),
+                        'is_known': 1,
+                    }
+                    data.append(das)
+            print(data)
+            if(len(name_namelist)>0):
+                Redis.set_data(r, 'name', name_namelist)
             # print(time.strftime("%H:%M:%S", time.localtime()))
             return json.dumps(data, cls=MyEncoder)
         except:
