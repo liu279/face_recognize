@@ -362,43 +362,70 @@
             data:{'url':imga.src},
             cache: "false",
             success: function (data) {
-                console.log(data)
+                // console.log(data)
                 var mytime3=myDate.toLocaleTimeString();
                 console.log('3：'+mytime3)
-                if(data){
-                    for (var j=0;j<data.length;j++){
-                        if(data[j].is_known == 1){
-                           var len = document.getElementById("info").getElementsByClassName("flex").length;
-                           if(data.length>len){
-                               document.getElementById("info").innerHTML = '';
-                               document.getElementById("info2").innerHTML = '';
-                               for (var j=0;j<data.length;j++){
-                                   var html = document.getElementById("info").innerHTML;
-                                   var html2 = document.getElementById("info2").innerHTML;
-                                   // console.log(html)
-                                   //再跟你想追加的代码加到一起插入div中
-                                   document.getElementById('info').innerHTML = html + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" onclick="return clicks('+j+')" src="./static/data_faces_from_camera/other/'+data[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
-                                   document.getElementById('info2').innerHTML = html2 + '<div id="detail'+j+'" class="flex" style="margin-bottom:10px;color:black;display: none"><div style="padding-left: 10px;"><h5>'+data[j]['name'] +'</h5><div style="font-size: 10px;">'+ data[j]['info']+'</div></div><img src="./static/data_faces_from_camera/other/'+data[j]['img']+'" style="width: 120px;height: 120px;"></div>';
-                               }
-                           }
-                        }else{
-                            var canvass2 =  document.getElementById("canvass2"+j);
-                            if(!canvass2){
-                                var canvass2 =  document.createElement("canvas");
-                            }
-                            var ctx2=canvass2.getContext('2d');//类型是2d
-                            canvass2.width=200;//画布的宽度等于视频屏幕的宽度
-                            canvass2.height=200;
-                            // left top width height
-                            ctx2.drawImage(imga,data[j].left-20,data[j].top-20,data[j].right - data[j].left+40,data[j].bottom - data[j].top+40,0,0,200,200);
-                            var html3 = document.getElementById("div").innerHTML;
-                            //再跟你想追加的代码加到一起插入div中
-                            var c = document.getElementById("canvass2"+j);
-                            if(!c){
-                                document.getElementById('div').innerHTML = html3 + '<div class="flex-column-start"><canvas id="canvass2'+j+'" width="100%" height="100%"></canvas><div>'+data[j].name+'</div></div>';
-                            }
+                if(data.known){
+                    for (var j=0;j<data.known.length;j++){
+                        // console.log('is_konwn:'+data.known[j]['is_known'])
+                        var len = document.getElementById("info").getElementsByClassName("flex").length;
+                        if(data.known.length>len){
+                            document.getElementById("info").innerHTML = '';
+                            document.getElementById("info2").innerHTML = '';
+                            // for (var i=0;i<data.length;i++){
+                                var html = document.getElementById("info").innerHTML;
+                                var html2 = document.getElementById("info2").innerHTML;
+                                // console.log(html)
+                                //再跟你想追加的代码加到一起插入div中
+                                document.getElementById('info').innerHTML = html + '<div class="flex" style="color:black;margin-right: 20px;margin-bottom: 20px;"> <img class="imgs" title="點我看詳情" onclick="return clicks('+j+')" src="./static/data_faces_from_camera/other/'+data.known[j]['img']+'" style="width:100px;height: 100px;cursor:pointer"></div>';
+                                document.getElementById('info2').innerHTML = html2 + '<div id="detail'+j+'" class="flex" style="margin-bottom:10px;color:black;display: none"><div style="padding-left: 10px;"><h5>'+data.known[j]['name'] +'</h5><div style="font-size: 10px;">'+ data.known[j]['info']+'</div></div><img src="./static/data_faces_from_camera/other/'+data.known[j]['img']+'" style="width: 120px;height: 120px;"></div>';
+                            // }
                         }
                     }
+                }
+                // if(data.unknown){
+                //     for (var j=0;j<data.unknown.length;j++){
+                //         console.log('is_konwn:'+data.unknown[j]['is_known'])
+                //         var canvass2 =  document.getElementById("canvasss"+j);
+                //         if(!canvass2){
+                //             var canvass2 =  document.createElement("canvas");
+                //         }
+                //         var ctx2=canvass2.getContext('2d');//类型是2d
+                //         canvass2.width=200;//画布的宽度等于视频屏幕的宽度
+                //         canvass2.height=200;
+                //         // left top width height
+                //         ctx2.drawImage(imga,data.unknown[j].left-20,data.unknown[j].top-20,data.unknown[j].right - data.unknown[j].left+40,data.unknown[j].bottom - data.unknown[j].top+40,0,0,200,200);
+                //         var html3 = document.getElementById("div").innerHTML;
+                //         //再跟你想追加的代码加到一起插入div中
+                //         var c = document.getElementById("canvasss"+j);
+                //         if(!c){
+                //             document.getElementById('div').innerHTML = html3 + '<div class="flex-column-start"><canvas id="canvasss'+j+'" width="100%" height="100%"></canvas><div>'+data.unknown[j].name+'</div></div>';
+                //         }
+                //     }
+                // }
+            },
+            error : function(e) {
+                console.log(e);
+            }
+        });
+
+        $.ajax({
+            url: "/line",
+            type: "get",
+            dataType: "json",
+            data:'',
+            cache: "false",
+            success: function (data) {
+                // console.log(data);
+                var len = document.getElementById("div").getElementsByTagName("img").length
+                if(data.length >len){
+                    document.getElementById("div").innerHTML = '';
+                    for (var j=0;j<data.length;j++){
+                        var html = document.getElementById("div").innerHTML;
+                            //再跟你想追加的代码加到一起插入div中
+                        document.getElementById('div').innerHTML = html + '<div style="display: inline-block"><input type="checkbox" name="imgs" value="'+data[j]+'"><img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="./static/data_faces_from_camera/other/'+data[j]+'"></div>';
+                        // document.getElementById('div').innerHTML = html + '<img style="width:100px;height: 100px;margin-right: 20px;margin-bottom: 20px;" src="http://127.0.0.1:5000/other/'+data[j]+'">';
+                   }
                 }
             },
             error : function(e) {

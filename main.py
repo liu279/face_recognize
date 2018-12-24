@@ -112,8 +112,10 @@ def index():
 def line():
     dir = './static/data_faces_from_camera/other/'
     arr=[]
+    times = time.strftime("%Y-%m-%d", time.localtime())
+    num = time.mktime(time.strptime(times,"%Y-%m-%d"))*1000
     for file in os.listdir(dir):
-        if(file != '.DS_Store'):
+        if(file != '.DS_Store' and num < int(file.split('.')[0])):
             arr.append(file)
     # print(arr)
     arr.sort(reverse=True)
@@ -378,18 +380,12 @@ def return_euclidean_distance(feature_1, feature_2):
 def line6():
     # return json.dumps({'code': 200, 'msg': 'ss'}, cls=MyEncoder)
     start = time.time()
-    # 人脸识别模型，提取 128D 的特征矢量
-    # face recognition model, the object maps human faces into 128D vectors
-    facerec = dlib.face_recognition_model_v1("static/data_dlib/dlib_face_recognition_resnet_model_v1.dat")
-
-    # Dlib 检测器和预测器
+    # Dlib 检测器
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor('static/data_dlib/shape_predictor_68_face_landmarks.dat')
-    # print(predictor)
+
     # print(time.strftime("%H:%M:%S", time.localtime()))
     if request.method == 'POST':
         try:
-
             file = request.values.get('url').split(',')[1]
             imD = base64.b64decode(file)
             nparr = np.frombuffer(imD, np.uint8)
@@ -404,72 +400,49 @@ def line6():
             # 人脸数 faces
             faces = detector(img_gray, 0)
 
-
-            # # OpenCV人脸识别分类器
-            # classifier = cv2.CascadeClassifier(
-            #     "static/haarcascades/haarcascade_frontalface_default.xml"
-            # )
-            # # 调用识别人脸
-            # faces = classifier.detectMultiScale(
-            #     img_gray, scaleFactor=1.2, minNeighbors=3, minSize=(32, 32))
-
-            # print(faces)
             # 存储所有人脸的名字
             name_namelist = []
-
-            other = os.listdir('static/data_faces_from_camera/other')
-            others = []
-            for i in range(len(other)):
-                if (other[i] != '.DS_Store'):
-                    others.append(other[i])
-            now = int(round(time.time(), 2) * 1000)
-            if len(others) > 0:
-                last = max(others)[:-4]
-            else:
-                last = 0
-            code = 800
-
-            # 处理存放所有人脸特征的 CSV
-            path_features_known_csv = "static/features_all.csv"
-            csv_rd = pd.read_csv(path_features_known_csv, header=None)
-
-            # 用来存放所有录入人脸特征的数组
-            features_known_arr = []
-            features_known_name = []
-
-            # 读取已知人脸数据
-            # known faces
-            for i in range(csv_rd.shape[0]):
-                features_someone_arr = []
-                for j in range(0, len(csv_rd.loc[i, :])):
-                    features_someone_arr.append(csv_rd.loc[i, :][j])
-                name = features_someone_arr.pop()
-                features_known_name.append(name)
-                features_known_arr.append(features_someone_arr)
-
+            # 存储识别到的
             data = []
+            data1 = []
             # 检测到人脸
             if len(faces) != 0:
+                now = int(round(time.time(), 2) * 1000)
+                # 处理存放所有人脸特征的 CSV
+                path_features_known_csv = "static/features_all.csv"
+                csv_rd = pd.read_csv(path_features_known_csv, header=None)
+
+                # 用来存放所有录入人脸特征的数组
+                features_known_arr = []
+                features_known_name = []
+
+                # 人脸识别模型，提取 128D 的特征矢量
+                # face recognition model, the object maps human faces into 128D vectors
+                facerec = dlib.face_recognition_model_v1("static/data_dlib/dlib_face_recognition_resnet_model_v1.dat")
+                # Dlib 预测器
+                predictor = dlib.shape_predictor('static/data_dlib/shape_predictor_68_face_landmarks.dat')
+
+                # 读取已知人脸数据
+                # known faces
+                for i in range(csv_rd.shape[0]):
+                    features_someone_arr = []
+                    for j in range(0, len(csv_rd.loc[i, :])):
+                        features_someone_arr.append(csv_rd.loc[i, :][j])
+                    name = features_someone_arr.pop()
+                    features_known_name.append(name)
+                    features_known_arr.append(features_someone_arr)
+
                 # 获取当前捕获到的图像的所有人脸的特征，存储到 features_cap_arr
                 features_cap_arr = []
                 for i in range(len(faces)):
                     shape = predictor(img_rd, faces[i])
                     features_cap_arr.append(facerec.compute_face_descriptor(img_rd, shape))
-                    # print(shape)
-                    # print(features_cap_arr)
-                # return json.dumps({'code': 200, 'msg': 'ss'}, cls=MyEncoder)
 
                 # 遍历捕获到的图像中所有的人脸
                 for k in range(len(faces)):
-                    # 让人名跟随在矩形框的下方
-                    # 确定人名的位置坐标
                     # 先默认所有人不认识，是 unknown
                     name_namelist.append("unknown")
 
-                    # 每个捕获人脸的名字坐标
-                    # pos_namelist.append(
-                    #     tuple([faces[k].left(), int(faces[k].bottom() + (faces[k].bottom() - faces[k].top()) / 4)]))
-                    # print(features_known_arr)
                     # 对于某张人脸，遍历所有存储的人脸特征
                     for i in range(len(features_known_arr)):
                         # da={}
@@ -478,15 +451,15 @@ def line6():
                         # print(compare)
                         if compare == "same":  # 找到了相似脸
                             name_namelist[k] = features_known_name[i]
-                            # print(111)
+                            print(111)
                             # print(faces[k])
                             # da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':1}
                             # data.append(da)
                         # else 不相似的脸 截图保存 等待后续操作
                         else:
-                            # print(222)
-                            da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':0}
-                            data.append(da)
+                            print(222)
+                            # da = {'name':name_namelist[k],'left':faces[k].left(),'top':faces[k].top(),'bottom':faces[k].bottom(),'right':faces[k].right(),'is_known':0}
+                            # data1.append(da)
                             path_make_dir = "static/data_faces_from_camera/"
                             # for kd, d in enumerate(faces):
                             #     # 计算矩形框大小
@@ -516,7 +489,8 @@ def line6():
                                 for jj in range(width * 2):
                                             # if (faces[k].top() - hh + ii < 720):
                                     im_blank[ii][jj] = img_rd[faces[k].top() - hh + ii][faces[k].left() - ww + jj]
-                            cv2.imwrite(path_make_dir + "/other/" + str(now) + ".jpg", im_blank)
+                            print(im_blank)
+                            cv2.imwrite(path_make_dir + "/other/" + str(now) + ".jpg", im_blank, [int(cv2.IMWRITE_JPEG_QUALITY), 60])
 
                 print(data)
             end = time.time()
@@ -533,28 +507,30 @@ def line6():
             else:
                 goods = name_namelist
 
-            print(goods)
+            # print(goods)
             Todo = leancloud.Object.extend('Test')
             query = Todo.query
             for i in goods:
-                print(i)
+                # print(i)
                 query.equal_to('image_id', i)
                 query_list = query.find()
                 for ii in query_list:
                     # print(ii.get('image_id'))
-                    das = {
-                        'image_id': ii.get('image_id'),
-                        'name': ii.get('name'),
-                        'info': ii.get('info'),
-                        'img': ii.get('img'),
-                        'is_known': 1,
-                    }
-                    data.append(das)
+                    if ii.get('image_id') != 'unknown':
+                        das = {
+                            'image_id': ii.get('image_id'),
+                            'name': ii.get('name'),
+                            'info': ii.get('info'),
+                            'img': ii.get('img'),
+                            'is_known': 1,
+                        }
+                        data.append(das)
             print(data)
             if(len(name_namelist)>0):
                 Redis.set_data(r, 'name', name_namelist)
             # print(time.strftime("%H:%M:%S", time.localtime()))
-            return json.dumps(data, cls=MyEncoder)
+            datas = {'known':data,'unknown':data1}
+            return json.dumps(datas, cls=MyEncoder)
         except:
             return json.dumps([], cls=MyEncoder)
 
